@@ -23,7 +23,7 @@ namespace Infrastructure.Data.Config
                 .HasForeignKey(dl => dl.ID);
 
             SeedLanguages(modelBuilder);
-            SeedDictionaries(modelBuilder);.
+            SeedDictionaries(modelBuilder);
             SeedDictionaryLocalizations(modelBuilder);
         }
         private void SeedLanguages(ModelBuilder modelBuilder)
@@ -37,7 +37,7 @@ namespace Infrastructure.Data.Config
 
         private void SeedDictionaries(ModelBuilder modelBuilder)
         {
-            var dictionaries = Enumerable.Range(0, 1000).Select(i => new Dictionary<string, string>()).ToArray();
+            var dictionaries = Enumerable.Range(0, 1000).Select(i => new Dictionary { ID = i}).ToArray();
             modelBuilder.Entity<Dictionary>().HasData(dictionaries);
         }
 
@@ -47,56 +47,70 @@ namespace Infrastructure.Data.Config
 
             // English Localizations
             var englishLocalizations = new Dictionary<int, string>
-            {
-                // Common
-                { 1, "Welcome" }, { 2, "Continue" }, { 3, "Next" }, { 4, "Back" },
-                { 5, "Submit" }, { 6, "Verify" }, { 7, "Resend" }, { 8, "Complete" },
+{
+    // Common
+    { 1, "Welcome" }, { 2, "Continue" }, { 3, "Next" }, { 4, "Back" },
+    { 5, "Submit" }, { 6, "Verify" }, { 7, "Resend" }, { 8, "Complete" },
 
-                // Registration Steps
-                { 20, "Registration Steps" }, { 21, "Personal Information" }, { 22, "Mobile Verification" },
-                { 23, "Email Verification" }, { 24, "Policy Approval" }, { 25, "PIN Setup" },
-                { 26, "Biometric Setup" }, { 27, "Completed" },
+    // Registration Steps
+    { 20, "Registration Steps" }, { 21, "Personal Information" }, { 22, "Mobile Verification" },
+    { 23, "Email Verification" }, { 24, "Policy Approval" }, { 25, "PIN Setup" },
+    { 26, "Biometric Setup" }, { 27, "Completed" },
 
-                // Step Descriptions
-                { 30, "Enter your personal details" },
-                { 31, "Verify your mobile number" },
-                { 32, "Verify your email address" },
-                { 33, "Accept terms and conditions" },
-                { 34, "Create your security PIN" },
-                { 35, "Set up biometric authentication" },
-                { 36, "Registration completed successfully" },
+    // Step Descriptions
+    { 30, "Enter your personal details" },
+    { 31, "Verify your mobile number" },
+    { 32, "Verify your email address" },
+    { 33, "Accept terms and conditions" },
+    { 34, "Create your security PIN" },
+    { 35, "Set up biometric authentication" },
+    { 36, "Registration completed successfully" },
 
-                // Form Fields
-                { 50, "IC Number" }, { 51, "Full Name" }, { 52, "Email Address" },
-                { 53, "Phone Number" }, { 54, "Language" },
+    // Form Fields
+    { 50, "IC Number" }, { 51, "Full Name" }, { 52, "Email Address" },
+    { 53, "Phone Number" }, { 54, "Language" },
 
-                // OTP & Verification
-                { 70, "Enter OTP" }, { 71, "OTP sent to your mobile" }, { 72, "OTP expired" },
-                { 73, "Invalid OTP" }, { 74, "OTP verified successfully" }, { 75, "Resend OTP" },
+    // OTP & Verification
+    { 70, "Enter OTP" }, { 71, "OTP sent to your mobile" }, { 72, "OTP expired" },
+    { 73, "Invalid OTP" }, { 74, "OTP verified successfully" }, { 75, "Resend OTP" },
 
-                // Policy & Terms
-                { 80, "Terms and Conditions" }, { 81, "Privacy Policy" }, { 82, "I agree to the terms and conditions" },
-                { 83, "Policy accepted" },
+    // Policy & Terms
+    { 80, "Terms and Conditions" }, { 81, "Privacy Policy" }, { 82, "I agree to the terms and conditions" },
+    { 83, "Policy accepted" },
 
-                // PIN Setup
-                { 90, "Create PIN" }, { 91, "Confirm PIN" }, { 92, "PIN numbers do not match" },
-                { 93, "PIN created successfully" }, { 94, "Enter 6-digit PIN" },
+    // PIN Setup
+    { 90, "Create PIN" }, { 91, "Confirm PIN" }, { 92, "Unmatched PIN" },
+    { 93, "PIN created successfully" }, { 94, "Enter 6-digit PIN" },
 
-                // Biometric
-                { 100, "Enable Biometric Authentication" }, { 101, "Biometric Setup" }, { 102, "Face ID" },
-                { 103, "Touch ID" }, { 104, "Biometric authentication enabled" }, { 105, "Skip Biometric" },
+    // Biometric
+    { 100, "Enable Biometric Authentication" }, { 101, "Biometric Setup" }, { 102, "Face ID" },
+    { 103, "Touch ID" }, { 104, "Biometric authentication enabled" }, { 105, "Skip Biometric" },
 
-                // Messages
-                { 120, "Personal information saved" }, { 121, "Mobile number verified" }, { 122, "Email verified" },
-                { 123, "Registration completed successfully" }, { 124, "Validation error" }, { 125, "This field is required" },
-                { 126, "Invalid IC Number" }, { 127, "IC Number already exists" },
+    // Messages
+    { 120, "Personal information saved" }, { 121, "Mobile number verified" }, { 122, "Email verified" },
+    { 123, "Registration completed successfully" }, { 124, "Validation error" }, { 125, "This field is required" },
+    { 126, "Invalid IC Number" }, { 127, "IC Number already exists" },
 
-                // Placeholders
-                { 140, "Enter your IC Number" }, { 141, "Enter your full name" }, { 142, "Enter your email" },
-                { 143, "Enter your phone number" }, { 144, "Select your language" },
+    // Placeholders
+    { 140, "Enter your IC Number" }, { 141, "Enter your full name" }, { 142, "Enter your email" },
+    { 143, "Enter your phone number" }, { 144, "Select your language" },
 
-                 { 145, "This field is required and Length is between {0} and {1}" }, { 146, "Please enter a valid e-mail address" }
-            };
+    { 145, "This field is required and Length is between {0} and {1}" }, { 146, "Please enter a valid e-mail address" },
+    { 147, "Please enter a valid phone number" },
+    { 173, "The email address is already in use" }, { 174, "Invalid email address" }, { 175, "The password is too short" },
+    { 176, "The password must contain a symbol" }, { 177, "The password must contain a digit" },
+    { 178, "Invalid OTP" }, // Corrected
+    { 179, "The password must contain an uppercase letter" },
+    { 180, "Invalid registration step" }, // Added
+    { 181, "OTP expired" }, // Added
+    { 182, "An unknown error occurred" },
+    { 183, "Please enter your OTP again " }, 
+    { 184, "There's an account registered with the IC number. Please login to continue" },
+    { 185, "Please enter your PIN again " },
+
+
+
+};
 
             // Arabic Localizations
             var arabicLocalizations = new Dictionary<int, string>
@@ -148,8 +162,18 @@ namespace Infrastructure.Data.Config
                 { 140, "أدخل رقم الهوية" }, { 141, "أدخل اسمك الكامل" }, { 142, "أدخل بريدك الإلكتروني" },
                 { 143, "أدخل رقم هاتفك" }, { 144, "اختر لغتك" },
 
-                { 145, "هذا الحقل مطلوب ويجب ان يكون عدد الخانات بين {0} و {1}" }, { 146, "الرجاء ادخال بريد الكتروني صالح" }
-
+                { 145, "هذا الحقل مطلوب ويجب ان يكون عدد الخانات بين {0} و {1}" }, { 146, "الرجاء ادخال بريد الكتروني صالح" },
+                { 147, "الرجاء إدخال رقم هاتف صالح" },
+                { 173, "البريد الإلكتروني مستخدم بالفعل" }, { 174, "بريد إلكتروني غير صالح" },
+                { 175, "كلمة المرور قصيرة جدًا" }, { 176, "يجب أن تحتوي كلمة المرور على رمز" },
+                { 177, "يجب أن تحتوي كلمة المرور على رقم" }, { 178, "رمز تحقق غير صحيح" }, // Corrected
+                { 179, "يجب أن تحتوي كلمة المرور على حرف كبير" },
+                { 180, "خطوة تسجيل غير صحيحة" }, // Added
+                { 181, "انتهت صلاحية رمز التحقق" }, // Added
+                { 182, "حدث خطأ غير معروف" },
+                { 183, "يرجى إدخال رمز التحقق مرة أخرى" },
+                { 184, "يوجد حساب مسجل برقم الهوية. يرجى تسجيل الدخول للمتابعة" },
+                { 185, "يرجى إدخال الرقم السري مرة أخرى" },
             };
 
             // Add English localizations

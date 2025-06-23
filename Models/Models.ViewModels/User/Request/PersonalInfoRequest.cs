@@ -2,11 +2,11 @@
 
 using Infrastructure.Helpers.Attributes;
 
-namespace Models.ViewModels.User
+namespace Models.ViewModels.User.Request
 {
     public class PersonalInfoRequest
     {
-        [CustomRequired(true, 145, min:0,max:0,maxLength:10,minLength:10)]
+        [CustomRequired(true, 145, min: 0, max: 0, maxLength: 10, minLength: 10, replacee: new [] {"10", "10"})]
         public string ICNumber { get; set; }
 
         [CustomRequired(true, 125)]
@@ -16,12 +16,8 @@ namespace Models.ViewModels.User
         [CustomEmailAddress(146)]
         public string Email { get; set; }
 
-        [Required]
-        [Phone]
+        [CustomRequired(true, 125)]
+        [CustomPhoneNumber(147)]
         public string PhoneNumber { get; set; }
-
-        [Required]
-        [Range(1, 2)]
-        public int LanguageID { get; set; }
     }
 }

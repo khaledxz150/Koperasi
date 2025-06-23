@@ -74,7 +74,7 @@ public class CustomRequiredAttribute : RequiredAttribute
 
         if (_isRequired)
         {
-            if (value is not null)
+            if (value is not null || (value is string && value != ""))
             {
                 // Check numeric range if applicable
                 if (_Min.HasValue && _Max.HasValue && _Max != 0 &&

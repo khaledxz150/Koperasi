@@ -1,24 +1,83 @@
+using Application.Services.Localization;
+using Application.Services.User;
+using Application.UnitOfWork;
+using Application.UnitOfWork.Repos;
 
+using Core.Services.Localization;
+using Core.Services.User;
+using Core.UnitOfWork;
+using Core.UnitOfWork.Repos;
 
-using Infrastructure.Koperasi;
+using Infrastructure.Data;
 using Infrastructure.Koperasi.Managers;
+
+using Koperasi.API.Filters.Operation;
+
+using Microsoft.OpenApi.Models;
+
+using Models.Entities.User;
+using Models.ViewModels.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Exatek API", Version = "v1" });
 
-builder.Services.InjectDB<ApplicationDbContext>(builder.Configuration.GetConnectionString("DefaultConnection"));
+    // Add required LanguageID header parameter globally
+    c.AddSecurityDefinition("LanguageID", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "LanguageID",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Description = "Required LanguageID header. Allowed values: 1 or 2. 1-English 2-Arabic",
+    });
 
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "LanguageID"
+                }
+            },
+            new string[] { }
+        }
+    });
+
+    // Add LanguageID header to all operations
+    c.OperationFilter<LanguageIdHeaderOperationFilter>();
+});
+
+// Register the operation filter
+builder.Services.AddSwaggerGenNewtonsoftSupport();
+builder.Services.AddTransient<LanguageIdHeaderOperationFilter>();
+builder.Services.InjectDB<ApplicationDbContext, Users>(builder.Configuration.GetConnectionString("DefaultConnection"));
+builder.Services.InjectIdentity<ApplicationDbContext,Users>(builder.Configuration);
 
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IDictionaryLocalizationRepository, DictionaryLocalizationRepository>();
+builder.Services.AddScoped<ILanguagesRepository, LanguagesRepository>();
+
 builder.Services.AddScoped<ILocalizationService, LocalizationService>();
+
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+
+//IOptions
+builder.Services.Configure<TwilioOptions>(builder.Configuration.GetSection("Twilio"));
+builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
 
 // Configure CORS for mobile apps
 builder.Services.AddCors(options =>
@@ -45,6 +104,9 @@ app.UseCors("MobileAppPolicy");
 app.UseAuthorization();
 app.MapControllers();
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 // Initialize database and cache
 using (var scope = app.Services.CreateScope())
 {
@@ -54,3 +116,5 @@ using (var scope = app.Services.CreateScope())
     var localizationService = scope.ServiceProvider.GetRequiredService<ILocalizationService>();
     await localizationService.RefreshCacheAsync();
 }
+
+app.Run();

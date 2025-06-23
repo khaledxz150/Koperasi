@@ -11,7 +11,7 @@ using static Models.Enums.User.RegistrationStatusEnum;
 namespace Models.Entities.User
 {
     [Index(nameof(Id), nameof(LanguageID))]
-    public class Users : IdentityUser<long>, IBaseEntity<long>
+    public class Users : IdentityUser<long>/*, IBaseEntity<long>*/
     {
         [Column(TypeName = "NVARCHAR(50)", Order = 3)]
         public string FullName { get; set; }
@@ -21,19 +21,19 @@ namespace Models.Entities.User
         public string ICNumber { get; set; }
 
         [Column(TypeName = "nvarchar(500)", Order = 9)]
-        public string Salt { get; set; }
+        public string? Salt { get; set; }
 
         [Column(TypeName = "nvarchar(500)", Order = 10)]
-        public string PINHash { get; set; }
+        public string? PINHash { get; set; }
 
 
         [Column(TypeName = "nvarchar(500)", Order = 11)]
-        public string MobileOTPPINHash { get; set; }
+        public string? MobileOTPHash { get; set; }
         public DateTime? MobileOTPSentAt { get; set; }
 
 
         [Column(TypeName = "nvarchar(500)", Order = 12)]
-        public string EmailPINHash { get; set; }
+        public string? EmailOTPHash { get; set; }
         public DateTime? EmailOTPSentAt { get; set; }
 
         public RegistrationStatus Status { get; set; } = RegistrationStatus.PersonalInfo;

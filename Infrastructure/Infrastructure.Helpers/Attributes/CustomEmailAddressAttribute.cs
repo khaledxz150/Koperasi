@@ -54,10 +54,16 @@ namespace Infrastructure.Helpers.Attributes
             // and it is neither the first nor the last character
             int index = valueAsString.IndexOf('@');
 
-            return
-                index > 0 &&
+            if (index > 0 &&
                 index != valueAsString.Length - 1 &&
-                index == valueAsString.LastIndexOf('@');
+                index == valueAsString.LastIndexOf('@'))
+            {
+                return ValidationResult.Success;
+            }
+
+            return new ValidationResult(validationWord);
+
         }
     }
+
 }

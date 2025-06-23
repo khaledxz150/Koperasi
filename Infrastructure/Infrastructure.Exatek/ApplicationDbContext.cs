@@ -1,4 +1,6 @@
-﻿using Infrastructure.Data.Config;
+﻿using System.Reflection.Emit;
+
+using Infrastructure.Data.Config;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -24,8 +26,12 @@ namespace Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.HasDefaultSchema("User");
-            builder.ApplyConfiguration(new User_Configuration());
+
+            base.OnModelCreating(builder);
             new Localization_Configuration(builder);
+
+            builder.ApplyConfiguration(new User_Configuration());
+
         }
     }
 }
