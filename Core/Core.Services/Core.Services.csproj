@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Models\Models.Entities\Models.Entities.csproj" />
     <ProjectReference Include="..\..\Models\Models.ViewModels\Models.ViewModels.csproj" />
   </ItemGroup>
 

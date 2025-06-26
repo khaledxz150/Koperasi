@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using Models.Entities.Localization;
+
 namespace Application.Services.Localization
 {
     public class LocalizationService : ILocalizationService
@@ -56,6 +58,10 @@ namespace Application.Services.Localization
             _logger.LogInformation($"Cached {strings.Count} localization strings for language ID: {languageId}");
 
             return strings;
+        }
+        public async Task<IEnumerable<Languages>> GetLanguagesAsync()
+        {
+            return await _unitOfWork.__languagesRepository.GetAllAsync();
         }
     }
 }
