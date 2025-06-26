@@ -6,6 +6,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+using Infrastructure.Helpers.HttpContext;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -30,9 +32,9 @@ namespace Infrastructure.Helpers.Attributes
         {
             var memoryCache = (IMemoryCache)validationContext.GetService(typeof(IMemoryCache));
             var httpContext = new HttpContextAccessor().HttpContext;
-            var languageID = httpContext?.Request.Headers["LanguageID"].FirstOrDefault() ?? "2";
+            var languageID = HTTPContextHelper.GetCurrentLanguageFromHeader();
 
-            string errorMessage = "Invalid phone number";
+            string errorMessage = "";
 
             if (memoryCache.TryGetValue($"{languageID}-DictionaryLocalization", out Dictionary<int, string> localization))
             {

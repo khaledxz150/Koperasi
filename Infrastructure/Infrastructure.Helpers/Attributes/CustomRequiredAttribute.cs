@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 using Infrastructure.Extensions;
+using Infrastructure.Helpers.HttpContext;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
@@ -58,7 +59,7 @@ public class CustomRequiredAttribute : RequiredAttribute
     protected override ValidationResult IsValid(object value, ValidationContext validationContext)
     {
         var memoryCache = (IMemoryCache)validationContext.GetService(typeof(IMemoryCache))!;
-        var languageID = new HttpContextAccessor().HttpContext.Request.Headers["LanguageID"].Single();
+        var languageID = HTTPContextHelper.GetCurrentLanguageFromHeader();
 
         var validationWord = "";
 

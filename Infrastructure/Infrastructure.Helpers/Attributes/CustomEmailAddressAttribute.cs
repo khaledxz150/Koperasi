@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Infrastructure.Helpers.HttpContext;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -22,7 +24,7 @@ namespace Infrastructure.Helpers.Attributes
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             var memoryCache = (IMemoryCache)validationContext.GetService(typeof(IMemoryCache));
-            var languageID = new HttpContextAccessor().HttpContext.Request.Headers["LanguageID"].Single();
+            var languageID = HTTPContextHelper.GetCurrentLanguageFromHeader();
 
             var validationWord = "";
 
