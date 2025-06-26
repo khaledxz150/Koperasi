@@ -1,21 +1,23 @@
-﻿
+﻿using Models.Enums.User;
 using Models.ViewModels.User.Base;
+
+using static Models.Enums.User.RegistrationStatusEnum;
 
 namespace Models.ViewModels.User.Response
 {
-    public class VerificationResponse : BaseResponse
+    public class LoginResponse : BaseResponse
     {
-        public bool IsVerified { get; set; }
-        public string? NextStep { get; set; } = null;
-        public DateTime? ExpiresAt { get; set; }
+        public RegistrationStatusEnum NextStep { get; set; }
+        public object Data { get; set; } = new object();
 
-        public VerificationResponse()
+        public LoginResponse()
         {
-            Success = true;
+            Success = false;
             Message = string.Empty;
-            StatusCode = 0; 
+            StatusCode = 0;
+
         }
-        public VerificationResponse(BaseResponse baseResponse)
+        public LoginResponse(BaseResponse baseResponse)
         {
             Success = baseResponse.Success;
             Message = baseResponse.Message;

@@ -96,7 +96,8 @@ namespace Infrastructure.Data.Config
     { 140, "Enter your IC Number" }, { 141, "Enter your full name" }, { 142, "Enter your email" },
     { 143, "Enter your phone number" }, { 144, "Select your language" },
 
-    { 145, "This field is required and Length is between {0} and {1}" }, { 146, "Please enter a valid e-mail address" },
+    { 145, "This field is required and Length is between {0} and {1}" }, 
+    { 146, "Please enter a valid e-mail address" },
     { 147, "Please enter a valid phone number" },
     { 173, "The email address is already in use" },
     { 174, "Invalid email address" },
@@ -196,7 +197,7 @@ namespace Infrastructure.Data.Config
             }
 
             modelBuilder.Entity<DictionaryLocalization>().HasData(
-                new DictionaryLocalization { ID = 186, LanguageID = 1, Description = "Mobile OTP accepted, proceed" },
+                new DictionaryLocalization { ID = 186, LanguageID = 1, Description = "OTP accepted, proceed" },
                 new DictionaryLocalization { ID = 186, LanguageID = 2, Description = "تم قبول رمز التحقق، تابع الخطوات التالية" }
             );
 
@@ -218,6 +219,8 @@ namespace Infrastructure.Data.Config
                 new DictionaryLocalization { ID = 190, LanguageID = 1, Description = "You are a migrated user. Please verify your mobile to complete your registration." },
                 new DictionaryLocalization { ID = 190, LanguageID = 2, Description = "أنت مستخدم مرحّل. يرجى التحقق من رقم الجوال لإكمال التسجيل." }
             );
+
+
             modelBuilder.Entity<DictionaryLocalization>().HasData(localizations);
         }
     }

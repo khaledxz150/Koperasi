@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 using Models.Entities.Base;
+using Models.Enums.User;
 
 using static Models.Enums.User.RegistrationStatusEnum;
 
@@ -20,11 +21,12 @@ namespace Models.Entities.User
         [Column(TypeName = "nvarchar(30)", Order = 4)]
         public string ICNumber { get; set; }
 
+
+
+
         [Column(TypeName = "nvarchar(500)", Order = 9)]
         public string? Salt { get; set; }
 
-        [Column(TypeName = "nvarchar(500)", Order = 10)]
-        public string? PINHash { get; set; }
 
 
         [Column(TypeName = "nvarchar(500)", Order = 11)]
@@ -36,7 +38,7 @@ namespace Models.Entities.User
         public string? EmailOTPHash { get; set; }
         public DateTime? EmailOTPSentAt { get; set; }
 
-        public RegistrationStatus Status { get; set; } = RegistrationStatus.PersonalInfo;
+        public RegistrationStatusEnum Status { get; set; } = RegistrationStatusEnum.PersonalInfo;
 
         [Column(Order = 6)]
         public int LanguageID { get; set; }

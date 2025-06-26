@@ -72,7 +72,7 @@ builder.Services.AddScoped<ILanguagesRepository, LanguagesRepository>();
 
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IRegistrationService, RegistrationService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IPolicyService, PolicyService>();
 builder.Services.AddScoped<IPolicyLocalizationRepository, PolicyLocalizationRepository>();

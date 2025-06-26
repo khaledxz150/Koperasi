@@ -57,7 +57,7 @@ public class CustomRequiredAttribute : RequiredAttribute
 
     protected override ValidationResult IsValid(object value, ValidationContext validationContext)
     {
-        var memoryCache = (IMemoryCache)validationContext.GetService(typeof(IMemoryCache));
+        var memoryCache = (IMemoryCache)validationContext.GetService(typeof(IMemoryCache))!;
         var languageID = new HttpContextAccessor().HttpContext.Request.Headers["LanguageID"].Single();
 
         var validationWord = "";

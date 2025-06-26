@@ -12,11 +12,11 @@ namespace Koperasi.API.Controllers
 {
     public class RegistrationController : BaseController
     {
-        private readonly IRegistrationService _registrationService;
+        private readonly IUserService _registrationService;
         private readonly ILogger<RegistrationController> _logger;
 
         public RegistrationController(
-            IRegistrationService registrationService,
+            IUserService registrationService,
             ILogger<RegistrationController> logger)
         {
             _registrationService = registrationService;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using Models.Enums.System;
 using Models.ViewModels.Localization.Response;
-using Models.ViewModels.User.Response.Base;
+using Models.ViewModels.User.Base;
 
 namespace Models.ViewModels.User.Response
 {

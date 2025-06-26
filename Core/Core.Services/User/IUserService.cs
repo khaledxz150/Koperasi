@@ -3,7 +3,7 @@ using Models.ViewModels.User.Response;
 
 namespace Core.Services.User
 {
-    public interface IRegistrationService
+    public interface IUserService
     {
         Task<PersonalInfoResponse> CreateUserAsync(PersonalInfoRequest request);
 
