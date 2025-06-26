@@ -5,7 +5,7 @@ namespace Models.ViewModels.User.Request
     public class PolicyApprovalRequest
     {
         [CustomRequired(true, 125)]
-        public long UserID { get; set; }
+        public string UserCode { get; set; }
 
         [CustomRequired(true, 125)]
         public bool AcceptTerms { get; set; }

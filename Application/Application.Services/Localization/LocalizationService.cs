@@ -1,4 +1,5 @@
 ﻿using Core.Services.Localization;
+using Core.UnitOfWork;
 
 using Infrastructure.Data;
 
@@ -10,21 +11,22 @@ namespace Application.Services.Localization
 {
     public class LocalizationService : ILocalizationService
     {
-        private readonly ApplicationDbContext _context; 
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMemoryCache _cache;
         private readonly ILogger<LocalizationService> _logger;
         public LocalizationService(
             ApplicationDbContext context,
             IMemoryCache cache,
-            ILogger<LocalizationService> logger)
+            ILogger<LocalizationService> logger,
+            IUnitOfWork unitOfWork)
         {
-            _context = context;
             _cache = cache;
             _logger = logger;
+            _unitOfWork = unitOfWork;
         }
         public async Task RefreshCacheAsync()
         {
-            var languages = await _context.Languages.ToListAsync();
+            var languages = await _unitOfWork.__languagesRepository.GetAllAsync();
 
             foreach (var language in languages)
             {
@@ -47,10 +49,7 @@ namespace Application.Services.Localization
                 return cachedStrings;
             }
 
-            var strings = await _context.DictionaryLocalizations
-                .Where(dl => dl.LanguageID == languageId)
-                .Include(dl => dl.Dictionary)
-                .ToDictionaryAsync(dl => dl.Dictionary.ID, dl => dl.Description);
+            var strings = await _unitOfWork._dictionaryLocalizationRepository.FindAsDictionaryAsync(dl => dl.LanguageID == languageId, dl => dl.ID, dl => dl.Description);
 
             _cache.Set(cacheKey, strings);
 

@@ -1,6 +1,7 @@
 ﻿using Application.UnitOfWork.Repos;
 
 using Core.UnitOfWork;
+using Core.UnitOfWork.Repos;
 
 using Infrastructure.Data;
 
@@ -16,6 +17,7 @@ namespace Application.UnitOfWork
         private IUserRepository? _userRepositoryInstance;
         private ILanguagesRepository? _languagesRepositoryInstance;
         private IDictionaryLocalizationRepository? _dictionaryLocalizationRepositoryInstance;
+        private IPolicyLocalizationRepository? _policyLocalizationRepositoryInstance;
 
         public IUserRepository _userRepository
         {
@@ -50,6 +52,19 @@ namespace Application.UnitOfWork
                     _dictionaryLocalizationRepositoryInstance = new DictionaryLocalizationRepository(_context);
                 }
                 return _dictionaryLocalizationRepositoryInstance;
+            }
+        }
+
+
+        public IPolicyLocalizationRepository _policyLocalizationRepository
+        {
+            get
+            {
+                if (_policyLocalizationRepositoryInstance == null)
+                {
+                    _policyLocalizationRepositoryInstance = new PolicyLocalizationRepository(_context);
+                }
+                return _policyLocalizationRepositoryInstance;
             }
         }
 

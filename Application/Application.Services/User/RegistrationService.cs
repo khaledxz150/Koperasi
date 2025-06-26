@@ -4,9 +4,11 @@ using System.Net.Mail;
 using Application.UnitOfWork.Repos;
 
 using Core.Services.User;
+using Core.UnitOfWork;
 
 using Infrastructure.Data;
 using Infrastructure.Extensions;
+using Infrastructure.Helpers.HttpContext;
 using Infrastructure.Helpers.Security;
 
 using Microsoft.AspNetCore.Http;
@@ -17,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Models.Entities.User;
+using Models.Enums.System;
 using Models.ViewModels.Options;
 using Models.ViewModels.User.Request;
 using Models.ViewModels.User.Response;
@@ -27,7 +30,7 @@ namespace Application.Services.User
 {
     public class RegistrationService : IRegistrationService
     {
-        private readonly IUserRepository _userRepo;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<Users> _userManager;
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger<RegistrationService> _logger;
@@ -36,20 +39,20 @@ namespace Application.Services.User
         private readonly IOptions<SmtpOptions> _smtpOptions;
 
         public RegistrationService(
-            IUserRepository userRepo,
             UserManager<Users> userManager,
             IMemoryCache memoryCache,
             ILogger<RegistrationService> logger,
             IOptions<TwilioOptions> twilioOptions,
-            IOptions<SmtpOptions> smtpOptions)
+            IOptions<SmtpOptions> smtpOptions,
+            IUnitOfWork unitOfWork)
         {
-            _userRepo = userRepo;
             _userManager = userManager;
             _memoryCache = memoryCache;
             _logger = logger;
-            _LanguageID = new HttpContextAccessor().HttpContext.Request.Headers["LanguageID"].FirstOrDefault().ToAnyType<int>();
+            _LanguageID = HTTPContextHelper.GetCurrentLanguageFromHeader();
             _twilioOptions = twilioOptions;
             _smtpOptions = smtpOptions;
+            _unitOfWork = unitOfWork;
         }
         public async Task<PersonalInfoResponse> CreateUserAsync(PersonalInfoRequest request)
         {
@@ -62,6 +65,10 @@ namespace Application.Services.User
                     {
                         Success = false,
                         Message = _memoryCache.GetWord(_LanguageID,127),
+                        PopUpErrors = new Dictionary<string, string> {
+                            { _memoryCache.GetWord(_LanguageID, 127), _memoryCache.GetWord(_LanguageID, 184) }
+                        },
+                        ValidationPopupType = ValidationPopupTypesEnum.SuggestLoginAndRetry
                     };
                 }
 
@@ -111,7 +118,8 @@ namespace Application.Services.User
                 {
                     Success = true,
                     StatusCode = (int)HttpStatusCode.OK,
-                    UserID = user.Id,
+                    UserCode = user.Id.Encrypt(),
+                    NextStep = RegistrationStatus.MobileVerification.ToString(),
                 };
             }
             catch (Exception ex)
@@ -133,7 +141,7 @@ namespace Application.Services.User
         {
             try
             {
-                var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == request.UserID);
+                var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == request.UserCode.Decrypt<long>());
                 if (user == null)
                 {
                     return new VerificationResponse
@@ -197,32 +205,200 @@ namespace Application.Services.User
             }
         }
 
-        public Task<VerificationResponse> VerifyEmailOTPAsync(EmailVerificationRequest request)
+        public async Task<VerificationResponse> VerifyEmailOTPAsync(EmailVerificationRequest request)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == request.UserCode.Decrypt<long>());
+                if (user == null)
+                {
+                    return new VerificationResponse
+                    {
+                        Success = false,
+                        IsVerified = false,
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        Message = _memoryCache.GetWord(_LanguageID, 124), 
+                    };
+                }
+
+                var providedOtpHash = request.OTP.SaltHash(user.Salt);
+                if (user.EmailOTPHash != providedOtpHash)
+                {
+                    return new VerificationResponse
+                    {
+                        Success = false,
+                        IsVerified = false,
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        Message = _memoryCache.GetWord(_LanguageID, 178), 
+                        PopUpErrors = new Dictionary<string, string> {
+                            { _memoryCache.GetWord(_LanguageID, 178), _memoryCache.GetWord(_LanguageID, 183) }
+                        }
+                    };
+                }
+
+                // Update user registration status and clear OTP
+                user.Status = RegistrationStatus.PolicyApproval;
+                user.EmailOTPHash = null;
+                user.UpdatedAt = DateTime.UtcNow;
+                await _userManager.UpdateAsync(user);
+
+                return new VerificationResponse
+                {
+                    Success = true,
+                    IsVerified = true,
+                    Message = _memoryCache.GetWord(_LanguageID, 186),
+                    NextStep = RegistrationStatus.PolicyApproval.ToString()
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error verifying email OTP");
+                return new VerificationResponse
+                {
+                    Success = false,
+                    IsVerified = false,
+                    Message = _memoryCache.GetWord(_LanguageID, 182), // "Unexpected error"
+                };
+            }
         }
+
+        public async Task<VerificationResponse?> ApprovePolicyAsync(PolicyApprovalRequest request)
+        {
+            try
+            {
+                var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == request.UserCode.Decrypt<long>());
+                if (user == null)
+                {
+                    return new VerificationResponse
+                    {
+                        Success = false,
+                        IsVerified = false,
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        Message = _memoryCache.GetWord(_LanguageID, 124) 
+                    };
+                }
+
+                user.Status = RegistrationStatus.PINSetup;
+                user.UpdatedAt = DateTime.UtcNow;
+                await _userManager.UpdateAsync(user);
+
+                return new VerificationResponse
+                {
+                    Success = true,
+                    IsVerified = true,
+                    StatusCode = (int)HttpStatusCode.OK,
+                    Message = _memoryCache.GetWord(_LanguageID, 187), 
+                    NextStep = RegistrationStatus.PINSetup.ToString()
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error approving policy");
+                return new VerificationResponse
+                {
+                    Success = false,
+                    IsVerified = false,
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    Message = _memoryCache.GetWord(_LanguageID, 182)
+                };
+            }
+        }
+
+
+        public async Task<VerificationResponse> SetupPINAsync(PinSetupRequest request)
+        {
+            try
+            {
+                var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == request.UserCode.Decrypt<long>());
+                if (user == null)
+                {
+                    return new VerificationResponse
+                    {
+                        Success = false,
+                        IsVerified = false,
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        Message = _memoryCache.GetWord(_LanguageID, 124) // User not found
+                    };
+                }
+
+                user.PINHash = request.PIN.SaltHash(user.Salt);
+                user.Status = RegistrationStatus.BiometricSetup;
+                user.UpdatedAt = DateTime.UtcNow;
+                await _userManager.UpdateAsync(user);
+
+                return new VerificationResponse
+                {
+                    Success = true,
+                    IsVerified = true,
+                    StatusCode = (int)HttpStatusCode.OK,
+                    Message = _memoryCache.GetWord(_LanguageID, 188), // "PIN saved successfully"
+                    NextStep = RegistrationStatus.BiometricSetup.ToString()
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error setting up PIN");
+                return new VerificationResponse
+                {
+                    Success = false,
+                    IsVerified = false,
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    Message = _memoryCache.GetWord(_LanguageID, 182) // "Unexpected error"
+                };
+            }
+        }
+
+
+        public async Task<VerificationResponse> SetupBiometricAsync(BiometricSetupRequest request)
+        {
+            try
+            {
+                var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == request.UserCode.Decrypt<long>());
+                if (user == null)
+                {
+                    return new VerificationResponse
+                    {
+                        Success = false,
+                        IsVerified = false,
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        Message = _memoryCache.GetWord(_LanguageID, 124)
+                    };
+                }
+
+
+                user.EnableBiometric = request.EnableBiometric;
+                user.Status = RegistrationStatus.Completed;
+                user.UpdatedAt = DateTime.UtcNow;
+                await _userManager.UpdateAsync(user);
+
+                return new VerificationResponse
+                {
+                    Success = true,
+                    IsVerified = true,
+                    StatusCode = (int)HttpStatusCode.OK,
+                    Message = _memoryCache.GetWord(_LanguageID, 189),
+                    NextStep = null
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error finalizing biometric setup");
+                return new VerificationResponse
+                {
+                    Success = false,
+                    IsVerified = false,
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    Message = _memoryCache.GetWord(_LanguageID, 182)
+                };
+            }
+        }
+
+
 
         public async Task<bool> IsICNumberExistsAsync(string icNumber)
         {
-            return await _userRepo.AnyAsync(u => u.ICNumber == icNumber);
+            return await _unitOfWork._userRepository.AnyAsync(u => u.ICNumber == icNumber);
         }
-
-        public Task<VerificationResponse?> ApprovePolicyAsync(PolicyApprovalRequest request)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<VerificationResponse> SetupBiometricAsync(BiometricSetupRequest request)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<VerificationResponse> SetupPINAsync(PinSetupRequest request)
-        {
-            throw new NotImplementedException();
-        }
-
-      
 
         private void AssignErrorsToDictionary(string Code, Dictionary<string, string> DictionaryErrors)
         {

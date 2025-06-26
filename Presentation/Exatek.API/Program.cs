@@ -1,9 +1,11 @@
 using Application.Services.Localization;
+using Application.Services.System;
 using Application.Services.User;
 using Application.UnitOfWork;
 using Application.UnitOfWork.Repos;
 
 using Core.Services.Localization;
+using Core.Services.System;
 using Core.Services.User;
 using Core.UnitOfWork;
 using Core.UnitOfWork.Repos;
@@ -24,7 +26,6 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Exatek API", Version = "v1" });
 
-    // Add required LanguageID header parameter globally
     c.AddSecurityDefinition("LanguageID", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "LanguageID",
@@ -63,13 +64,18 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+
+builder.Services.AddScoped<ILocalizationService, LocalizationService>();
 builder.Services.AddScoped<IDictionaryLocalizationRepository, DictionaryLocalizationRepository>();
 builder.Services.AddScoped<ILanguagesRepository, LanguagesRepository>();
 
-builder.Services.AddScoped<ILocalizationService, LocalizationService>();
 
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();
+
+builder.Services.AddScoped<IPolicyService, PolicyService>();
+builder.Services.AddScoped<IPolicyLocalizationRepository, PolicyLocalizationRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

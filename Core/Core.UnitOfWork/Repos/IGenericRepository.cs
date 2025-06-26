@@ -15,6 +15,10 @@ namespace Core.UnitOfWork.Repos
         Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate);
         Task<IEnumerable<TResult>> FindAsync<TResult>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TResult>> selector);
         Task<IEnumerable<TResult>> FindAsync<TResult>(Expression<Func<TEntity, TResult>> selector);
+        Task<Dictionary<TKey, TValue>> FindAsDictionaryAsync<TKey, TValue>(
+        Expression<Func<TEntity, bool>> predicate,
+        Func<TEntity, TKey> keySelector,
+        Func<TEntity, TValue> valueSelector) where TKey : notnull;
 
         Task AddAsync(TEntity entity);
         Task AddRangeAsync(IEnumerable<TEntity> entities);

@@ -89,7 +89,8 @@ namespace Infrastructure.Data.Config
     // Messages
     { 120, "Personal information saved" }, { 121, "Mobile number verified" }, { 122, "Email verified" },
     { 123, "Registration completed successfully" }, { 124, "Validation error" }, { 125, "This field is required" },
-    { 126, "Invalid IC Number" }, { 127, "IC Number already exists" },
+    { 126, "Invalid IC Number" },
+    { 127, "Account already exists" },
 
     // Placeholders
     { 140, "Enter your IC Number" }, { 141, "Enter your full name" }, { 142, "Enter your email" },
@@ -97,9 +98,12 @@ namespace Infrastructure.Data.Config
 
     { 145, "This field is required and Length is between {0} and {1}" }, { 146, "Please enter a valid e-mail address" },
     { 147, "Please enter a valid phone number" },
-    { 173, "The email address is already in use" }, { 174, "Invalid email address" }, { 175, "The password is too short" },
-    { 176, "The password must contain a symbol" }, { 177, "The password must contain a digit" },
-    { 178, "Invalid OTP" }, // Corrected
+    { 173, "The email address is already in use" },
+    { 174, "Invalid email address" },
+    { 175, "The password is too short" },
+    { 176, "The password must contain a symbol" }, 
+    { 177, "The password must contain a digit" },
+    { 178, "Unmatched OTP" }, // Corrected
     { 179, "The password must contain an uppercase letter" },
     { 180, "Invalid registration step" }, // Added
     { 181, "OTP expired" }, // Added
@@ -115,16 +119,13 @@ namespace Infrastructure.Data.Config
             // Arabic Localizations
             var arabicLocalizations = new Dictionary<int, string>
             {
-                // Common
                 { 1, "مرحباً" }, { 2, "متابعة" }, { 3, "التالي" }, { 4, "رجوع" },
                 { 5, "إرسال" }, { 6, "تحقق" }, { 7, "إعادة إرسال" }, { 8, "إكمال" },
 
-                // Registration Steps
                 { 20, "خطوات التسجيل" }, { 21, "المعلومات الشخصية" }, { 22, "التحقق من الجوال" },
                 { 23, "التحقق من البريد الإلكتروني" }, { 24, "الموافقة على السياسة" }, { 25, "إعداد الرقم السري" },
                 { 26, "إعداد البيانات الحيوية" }, { 27, "مكتمل" },
 
-                // Step Descriptions
                 { 30, "أدخل بياناتك الشخصية" },
                 { 31, "تحقق من رقم جوالك" },
                 { 32, "تحقق من عنوان بريدك الإلكتروني" },
@@ -133,43 +134,39 @@ namespace Infrastructure.Data.Config
                 { 35, "قم بإعداد المصادقة البيومترية" },
                 { 36, "تم إكمال التسجيل بنجاح" },
 
-                // Form Fields
                 { 50, "رقم الهوية" }, { 51, "الاسم الكامل" }, { 52, "البريد الإلكتروني" },
                 { 53, "رقم الهاتف" }, { 54, "اللغة" },
 
-                // OTP & Verification
                 { 70, "أدخل رمز التحقق" }, { 71, "تم إرسال رمز التحقق إلى جوالك" }, { 72, "انتهت صلاحية رمز التحقق" },
                 { 73, "رمز تحقق غير صحيح" }, { 74, "تم التحقق من الرمز بنجاح" }, { 75, "إعادة إرسال الرمز" },
 
-                // Policy & Terms
                 { 80, "الشروط والأحكام" }, { 81, "سياسة الخصوصية" }, { 82, "أوافق على الشروط والأحكام" },
                 { 83, "تم قبول السياسة" },
 
-                // PIN Setup
                 { 90, "إنشاء الرقم السري" }, { 91, "تأكيد الرقم السري" }, { 92, "الأرقام السرية غير متطابقة" },
                 { 93, "تم إنشاء الرقم السري بنجاح" }, { 94, "أدخل الرقم السري المكون من 6 أرقام" },
 
-                // Biometric
                 { 100, "تفعيل المصادقة البيومترية" }, { 101, "إعداد البيانات الحيوية" }, { 102, "التعرف على الوجه" },
                 { 103, "بصمة اللمس" }, { 104, "تم تفعيل المصادقة البيومترية" }, { 105, "تخطي البيانات الحيوية" },
 
-                // Messages
                 { 120, "تم حفظ المعلومات الشخصية" }, { 121, "تم التحقق من رقم الجوال" }, { 122, "تم التحقق من البريد الإلكتروني" },
                 { 123, "تم إكمال التسجيل بنجاح" }, { 124, "خطأ في التحقق" }, { 125, "هذا الحقل مطلوب" },
                 { 126, "رقم هوية غير صحيح" }, { 127, "رقم الهوية موجود مسبقاً" },
 
-                // Placeholders
                 { 140, "أدخل رقم الهوية" }, { 141, "أدخل اسمك الكامل" }, { 142, "أدخل بريدك الإلكتروني" },
                 { 143, "أدخل رقم هاتفك" }, { 144, "اختر لغتك" },
 
-                { 145, "هذا الحقل مطلوب ويجب ان يكون عدد الخانات بين {0} و {1}" }, { 146, "الرجاء ادخال بريد الكتروني صالح" },
+                { 145, "هذا الحقل مطلوب ويجب ان يكون عدد الخانات بين {0} و {1}" },
+                { 146, "الرجاء ادخال بريد الكتروني صالح" },
                 { 147, "الرجاء إدخال رقم هاتف صالح" },
-                { 173, "البريد الإلكتروني مستخدم بالفعل" }, { 174, "بريد إلكتروني غير صالح" },
+                { 173, "البريد الإلكتروني مستخدم بالفعل" },
+                { 174, "بريد إلكتروني غير صالح" },
                 { 175, "كلمة المرور قصيرة جدًا" }, { 176, "يجب أن تحتوي كلمة المرور على رمز" },
-                { 177, "يجب أن تحتوي كلمة المرور على رقم" }, { 178, "رمز تحقق غير صحيح" }, // Corrected
+                { 177, "يجب أن تحتوي كلمة المرور على رقم" },
+                { 178, "رمز تحقق غير مطابق" }, 
                 { 179, "يجب أن تحتوي كلمة المرور على حرف كبير" },
-                { 180, "خطوة تسجيل غير صحيحة" }, // Added
-                { 181, "انتهت صلاحية رمز التحقق" }, // Added
+                { 180, "خطوة تسجيل غير صحيحة" }, 
+                { 181, "انتهت صلاحية رمز التحقق" },
                 { 182, "حدث خطأ غير معروف" },
                 { 183, "يرجى إدخال رمز التحقق مرة أخرى" },
                 { 184, "يوجد حساب مسجل برقم الهوية. يرجى تسجيل الدخول للمتابعة" },
@@ -198,6 +195,29 @@ namespace Infrastructure.Data.Config
                 });
             }
 
+            modelBuilder.Entity<DictionaryLocalization>().HasData(
+                new DictionaryLocalization { ID = 186, LanguageID = 1, Description = "Mobile OTP accepted, proceed" },
+                new DictionaryLocalization { ID = 186, LanguageID = 2, Description = "تم قبول رمز التحقق، تابع الخطوات التالية" }
+            );
+
+            modelBuilder.Entity<DictionaryLocalization>().HasData(
+                new DictionaryLocalization { ID = 187, LanguageID = 1, Description = "Policy approved successfully" },
+                new DictionaryLocalization { ID = 187, LanguageID = 2, Description = "تم قبول السياسات بنجاح" }
+            );
+
+
+            modelBuilder.Entity<DictionaryLocalization>().HasData(
+                new DictionaryLocalization { ID = 188, LanguageID = 1, Description = "PIN has been set successfully" },
+                new DictionaryLocalization { ID = 188, LanguageID = 2, Description = "تم تعيين رمز الحماية بنجاح" },
+
+                new DictionaryLocalization { ID = 189, LanguageID = 1, Description = "Registration Completed" },
+                new DictionaryLocalization { ID = 189, LanguageID = 2, Description = "تم إنتهاء عملية التسجيل" }
+            );
+
+            modelBuilder.Entity<DictionaryLocalization>().HasData(
+                new DictionaryLocalization { ID = 190, LanguageID = 1, Description = "You are a migrated user. Please verify your mobile to complete your registration." },
+                new DictionaryLocalization { ID = 190, LanguageID = 2, Description = "أنت مستخدم مرحّل. يرجى التحقق من رقم الجوال لإكمال التسجيل." }
+            );
             modelBuilder.Entity<DictionaryLocalization>().HasData(localizations);
         }
     }

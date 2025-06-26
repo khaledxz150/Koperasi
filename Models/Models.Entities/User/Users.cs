@@ -45,6 +45,7 @@ namespace Models.Entities.User
         public DateTime? UpdatedAt {get; set; }
         public string? CreatedBy    {get; set; }
         public string? UpdatedBy    {get; set; }
+        public bool EnableBiometric { get; set; }
     }
 }
 

@@ -10,7 +10,7 @@ namespace Models.Enums.User
             MobileVerification = 2,
             EmailVerification = 4,
             PolicyApproval = 5,
-            PinSetup = 6,
+            PINSetup = 6,
             BiometricSetup = 5,
             Completed = 6
         }

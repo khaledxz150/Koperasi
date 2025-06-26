@@ -1,5 +1,7 @@
 ﻿using Core.Services.User;
 
+using Infrastructure.Helpers.Security;
+
 using Koperasi.API.Controllers.Bases;
 
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +22,18 @@ namespace Koperasi.API.Controllers
             _registrationService = registrationService;
             _logger = logger;
         }
+
+#if DEBUG
+        [HttpGet("Decrypt")]
+        public IActionResult Decrypt(string Code)
+        { return Ok(Code.Decrypt<int>()); }
+        [HttpGet("Encrypt")]
+        public IActionResult Encrypt(long ID)
+        { return Ok(ID.Encrypt()); }
+#endif
+
+
+
 
         [HttpPost("personal-info")]
         public async Task<IActionResult> CreateUser([FromBody] PersonalInfoRequest request)

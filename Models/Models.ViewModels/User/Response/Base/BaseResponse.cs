@@ -6,5 +6,7 @@
         public string Message { get; set; }
         public int StatusCode { get; set; }
         public Dictionary<string, string> FieldErrors { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> PopUpErrors { get; set; } = new Dictionary<string, string>();
+
     }
 }

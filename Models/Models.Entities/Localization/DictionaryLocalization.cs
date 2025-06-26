@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Models.Entities.Localization
 {
+    [Table("Dictionary", Schema = "DictionaryLocalization")]
     public class DictionaryLocalization
     {
         [Required]

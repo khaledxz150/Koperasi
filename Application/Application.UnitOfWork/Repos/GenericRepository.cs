@@ -11,7 +11,7 @@ namespace Application.UnitOfWork.Repos
 {
     public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class 
     {
-        private readonly ApplicationDbContext _context;
+        protected readonly ApplicationDbContext _context;
         private readonly DbSet<TEntity> _dbSet;
 
         public GenericRepository(ApplicationDbContext context)
@@ -55,6 +55,16 @@ namespace Application.UnitOfWork.Repos
         {
             if (selector == null) throw new ArgumentNullException(nameof(selector));
             return await _dbSet.Select(selector).ToListAsync();
+        }
+
+        public async Task<Dictionary<TKey, TValue>> FindAsDictionaryAsync<TKey, TValue>(
+        Expression<Func<TEntity, bool>> predicate,
+        Func<TEntity, TKey> keySelector,
+        Func<TEntity, TValue> valueSelector) where TKey : notnull
+        {
+            return await _context.Set<TEntity>()
+                .Where(predicate)
+                .ToDictionaryAsync(keySelector, valueSelector);
         }
 
         public async Task<IEnumerable<TEntity>> GetAllAsync()
