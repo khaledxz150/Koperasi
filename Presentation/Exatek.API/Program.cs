@@ -4,6 +4,8 @@ using Application.Services.User;
 using Application.UnitOfWork;
 using Application.UnitOfWork.Repos;
 
+using AspNetCoreRateLimit;
+
 using Core.Services.Localization;
 using Core.Services.System;
 using Core.Services.User;
@@ -84,6 +86,12 @@ builder.Services.AddEndpointsApiExplorer();
 //IOptions
 builder.Services.Configure<TwilioOptions>(builder.Configuration.GetSection("Twilio"));
 builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
+builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+builder.Services.Configure<IpRateLimitPolicies>(builder.Configuration.GetSection("IpRateLimitPolicies"));
+builder.Services.AddInMemoryRateLimiting();
+
+// Needed for resolving client IPs
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
 // Configure CORS for mobile apps
 builder.Services.AddCors(options =>
@@ -96,7 +104,14 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.Configure<IpRateLimitOptions>(options =>
+{
+    options.RealIpHeader = "X-Forwarded-For";
+    options.EnableEndpointRateLimiting = false;
+});
+
 var app = builder.Build();
+app.UseIpRateLimiting();
 
 // Configure pipeline
 if (app.Environment.IsDevelopment())

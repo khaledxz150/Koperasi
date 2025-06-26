@@ -5,10 +5,9 @@ using static Models.Enums.User.RegistrationStatusEnum;
 
 namespace Models.ViewModels.User.Response
 {
-    public class LoginResponse : BaseResponse
+    public class LoginResponse : BaseResponse<UserDataResponse>
     {
         public RegistrationStatusEnum NextStep { get; set; }
-        public object Data { get; set; } = new object();
 
         public LoginResponse()
         {

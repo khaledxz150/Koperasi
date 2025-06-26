@@ -21,6 +21,8 @@ using Models.ViewModels.User.Base;
 using Models.ViewModels.User.Request;
 using Models.ViewModels.User.Response;
 
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 namespace Application.Services.User
 {
     public class UserService : IUserService
@@ -70,11 +72,23 @@ namespace Application.Services.User
                 user.Status = RegistrationStatusEnum.MobileVerification;
                 SendOtpViaTwilio(user.PhoneNumber, mobileOtp);
 
+                if (user.SecurityStamp == null)
+                {
+                    var stamp = await _userManager.UpdateSecurityStampAsync(user);
+                }
+
+                await _userManager.UpdateAsync(user);
+
                 return new LoginResponse
                 {
                     Success = true,
                     StatusCode = (int)HttpStatusCode.OK,
-                    NextStep = RegistrationStatusEnum.MobileVerification
+                    NextStep = RegistrationStatusEnum.MobileVerification,
+                    Data = new UserDataResponse
+                    {
+                        UserCode = user.Id.Encrypt(),
+                        Name = user.FullName
+                    }
                 };
             }
             
@@ -84,10 +98,10 @@ namespace Application.Services.User
                 Success = true,
                 StatusCode = (int)HttpStatusCode.OK,
                 Message = _memoryCache.GetWord(_LanguageID, 192),
-                Data = new
+                Data = new UserDataResponse
                 {
                     UserCode = user.Id.Encrypt(),
-                    FullName = user.FullName
+                    Name = user.FullName
                 }
             };
         }
@@ -148,7 +162,7 @@ namespace Application.Services.User
             SendEmailOtp(user.Email, emailOtp); // Skipped for local test
 #endif
 
-            return SuccessVerificationResponse(179, RegistrationStatusEnum.EmailVerification, emailOtp);
+            return SuccessVerificationResponse(186, RegistrationStatusEnum.EmailVerification, emailOtp);
         }
 
         public async Task<VerificationResponse> VerifyEmailOTPAsync(EmailVerificationRequest request)
@@ -165,7 +179,7 @@ namespace Application.Services.User
             user.EmailOTPHash = null;
             await _userManager.UpdateAsync(user);
 
-            return SimpleSuccessResponse(186, RegistrationStatusEnum.PolicyApproval);
+            return VerificationSuccessResponse(186, RegistrationStatusEnum.PolicyApproval);
         }
 
         public async Task<VerificationResponse?> ApprovePolicyAsync(PolicyApprovalRequest request)
@@ -176,7 +190,7 @@ namespace Application.Services.User
             user.Status = RegistrationStatusEnum.PINSetup;
             await _userManager.UpdateAsync(user);
 
-            return SimpleSuccessResponse(187, RegistrationStatusEnum.PINSetup);
+            return VerificationSuccessResponse(187, RegistrationStatusEnum.PINSetup);
         }
 
         public async Task<VerificationResponse> SetupPINAsync(PinSetupRequest request)
@@ -189,19 +203,23 @@ namespace Application.Services.User
             user.Status = RegistrationStatusEnum.BiometricSetup;
             await _userManager.UpdateAsync(user);
 
-            return SimpleSuccessResponse(188, RegistrationStatusEnum.BiometricSetup);
+            return VerificationSuccessResponse(188, RegistrationStatusEnum.BiometricSetup);
         }
 
-        public async Task<VerificationResponse> SetupBiometricAsync(BiometricSetupRequest request)
+        public async Task<VerificationResponse<UserDataResponse>> SetupBiometricAsync(BiometricSetupRequest request)
         {
             var user = await GetUserById(request.UserCode);
-            if (user == null) return new VerificationResponse(UserNotFoundResponse());
+            if (user == null) return new VerificationResponse<UserDataResponse>(UserNotFoundResponse());
 
             user.EnableBiometric = request.EnableBiometric;
             user.Status = RegistrationStatusEnum.Completed;
             await _userManager.UpdateAsync(user);
 
-            return SimpleSuccessResponse(189, null);
+            return VerificationSuccessResponse(189, null, new UserDataResponse
+            {
+                UserCode = user.Id.Encrypt(),
+                Name = user.FullName
+            });
         }
 
         // ===== Helper Functions =====
@@ -329,14 +347,28 @@ namespace Application.Services.User
             NextStep = nextStep.ToString()
         };
 
-        private VerificationResponse SimpleSuccessResponse(int messageId, RegistrationStatusEnum? nextStep) => new()
+        private VerificationResponse VerificationSuccessResponse(int messageId, RegistrationStatusEnum? nextStep) => new()
         {
             Success = true,
             IsVerified = true,
             StatusCode = (int)HttpStatusCode.OK,
             Message = _memoryCache.GetWord(_LanguageID, messageId),
-            NextStep = nextStep?.ToString()
+            NextStep = nextStep?.ToString(),
+            Data =  new object()
         };
+
+        private VerificationResponse<T> VerificationSuccessResponse<T>(int messageId, RegistrationStatusEnum? nextStep, T data) where T : new()
+        {
+            return new()
+            {
+                Success = true,
+                IsVerified = true,
+                StatusCode = (int)HttpStatusCode.OK,
+                Message = _memoryCache.GetWord(_LanguageID, messageId),
+                NextStep = nextStep?.ToString(),
+                Data = data
+            };
+        }
 
         private void AssignErrorsToDictionary(string Code, Dictionary<string, string> dict)
         {

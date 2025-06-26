@@ -6,18 +6,20 @@ using Koperasi.API.Controllers.Bases;
 
 using Microsoft.AspNetCore.Mvc;
 
+using Models.ViewModels.User.Base;
 using Models.ViewModels.User.Request;
+using Models.ViewModels.User.Response;
 
 namespace Koperasi.API.Controllers
 {
-    public class RegistrationController : BaseController
+    public class AccountController : BaseController
     {
         private readonly IUserService _registrationService;
-        private readonly ILogger<RegistrationController> _logger;
+        private readonly ILogger<AccountController> _logger;
 
-        public RegistrationController(
+        public AccountController(
             IUserService registrationService,
-            ILogger<RegistrationController> logger)
+            ILogger<AccountController> logger)
         {
             _registrationService = registrationService;
             _logger = logger;
@@ -33,9 +35,29 @@ namespace Koperasi.API.Controllers
 #endif
 
 
+        [HttpPost("login")]
+        [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _registrationService.LoginAsync(request);
+
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+
+            return BadRequest(result);
+        }
 
 
-        [HttpPost("personal-info")]
+        [HttpPost("setup-personal-info")]
+        [ProducesResponseType(typeof(PersonalInfoResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateUser([FromBody] PersonalInfoRequest request)
         {
             if (!ModelState.IsValid)
@@ -52,7 +74,8 @@ namespace Koperasi.API.Controllers
 
             return BadRequest(result);
         }
-        [HttpPost("mobile-verification")]
+        [HttpPost("setup-mobile-verification")]
+        [ProducesResponseType(typeof(VerificationResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> VerifyMobile([FromBody] MobileVerificationRequest request)
         {
             if (!ModelState.IsValid)
@@ -70,7 +93,8 @@ namespace Koperasi.API.Controllers
             return BadRequest(result);
         }
 
-        [HttpPost("email-verification")]
+        [HttpPost("setup-email-verification")]
+        [ProducesResponseType(typeof(VerificationResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> VerifyEmail([FromBody] EmailVerificationRequest request)
         {
             if (!ModelState.IsValid)
@@ -88,7 +112,8 @@ namespace Koperasi.API.Controllers
             return BadRequest(result);
         }
 
-        [HttpPost("policy-approval")]
+        [HttpPost("setup-policy-approval")]
+        [ProducesResponseType(typeof(VerificationResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> ApprovePolicy([FromBody] PolicyApprovalRequest request)
         {
             if (!ModelState.IsValid)
@@ -106,7 +131,8 @@ namespace Koperasi.API.Controllers
             return BadRequest(result);
         }
 
-        [HttpPost("pin-setup")]
+        [HttpPost("setup-pin-setup")]
+        [ProducesResponseType(typeof(VerificationResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> SetupPIN([FromBody] PinSetupRequest request)
         {
             if (!ModelState.IsValid)
@@ -124,7 +150,8 @@ namespace Koperasi.API.Controllers
             return BadRequest(result);
         }
 
-        [HttpPost("biometric-setup")]
+        [HttpPost("setup-biometric-setup")]
+        [ProducesResponseType(typeof(VerificationResponse<UserDataResponse>), StatusCodes.Status200OK)]
         public async Task<IActionResult> SetupBiometric([FromBody] BiometricSetupRequest request)
         {
             if (!ModelState.IsValid)

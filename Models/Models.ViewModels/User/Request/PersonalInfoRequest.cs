@@ -6,7 +6,7 @@ namespace Models.ViewModels.User.Request
 {
     public class PersonalInfoRequest
     {
-        [CustomRequired(true, 145, min: 0, max: 0, maxLength: 9, minLength: 10, replacee: new [] {"9", "10"})]
+        [CustomRequired(true, 145, min: 0, max: 0, maxLength: 10, minLength: 9, replacee: new [] {"9", "10"})]
         public string ICNumber { get; set; }
 
         [CustomRequired(true, 125)]
